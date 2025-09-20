@@ -1,0 +1,7 @@
+name: Cataclysm
+version: '1.0'
+main: org.cataclysm.Cataclysm
+api-version: '1.21.8'
+prefix: CATACLYSM
+authors: [Pepe3012]
+description: Cataclysm's revamped edition with additional content
