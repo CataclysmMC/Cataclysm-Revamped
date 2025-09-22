@@ -1,8 +1,9 @@
-package org.cataclysm.global.time;
+package org.cataclysm.global.events;
 
 import lombok.Getter;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
+import org.cataclysm.global.CataclysmTime;
 import org.jetbrains.annotations.NotNull;
 
 /**

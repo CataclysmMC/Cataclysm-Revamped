@@ -1,4 +1,4 @@
-package org.cataclysm.global.time;
+package org.cataclysm.global;
 
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.cataclysm.Cataclysm;
 import org.cataclysm.api.data.json.JsonConfig;
-import org.cataclysm.global.dispatcher.ChatMessenger;
+import org.cataclysm.global.events.DayChangeEvent;
 import org.cataclysm.utils.MathUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -111,7 +111,7 @@ public class CataclysmTime {
             default -> "<red>Consulta no válida";
         };
         if (player == null) Bukkit.getConsoleSender().sendMessage(MiniMessage.miniMessage().deserialize(message));
-        else ChatMessenger.sendCataclysmMessage(player, message);
+        else Cataclysm.getDispatcher().message(player, message);
     }
 
     // ==============================================
@@ -121,14 +121,13 @@ public class CataclysmTime {
     public static void save() throws Exception {
         JsonConfig jsonConfig = JsonConfig.cfg(FILE_NAME, Cataclysm.getInstance());
 
-        CataclysmTime manager = Cataclysm.getTime();
-        TimeData data = TimeData.toData(manager);
+        TimeData data = TimeData.toData(Cataclysm.getTimeManager());
 
         jsonConfig.setJsonObject(Cataclysm.getGson().toJsonTree(data).getAsJsonObject());
         jsonConfig.save();
     }
 
-    public static void load() throws Exception {
+    public static CataclysmTime load() throws Exception {
         JsonConfig config = JsonConfig.cfg(FILE_NAME, Cataclysm.getInstance());
         JsonObject object = config.getJsonObject();
 
@@ -137,7 +136,7 @@ public class CataclysmTime {
         else manager = Cataclysm.getGson()
                 .fromJson(object, TimeData.class)
                 .toManager();
-        Cataclysm.setTime(manager);
+        return manager;
     }
 
     record TimeData(int day, long dayTime, long tickRate) {
