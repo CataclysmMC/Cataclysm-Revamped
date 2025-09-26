@@ -1,4 +1,4 @@
-package org.cataclysm.utils;
+package org.cataclysm.utils.font;
 
 import java.util.HashMap;
 import java.util.Map;

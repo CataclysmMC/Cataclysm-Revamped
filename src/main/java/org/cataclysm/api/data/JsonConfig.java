@@ -1,4 +1,4 @@
-package org.cataclysm.api.data.json;
+package org.cataclysm.api.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

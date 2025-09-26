@@ -5,15 +5,10 @@ import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.cataclysm.api.listener.EventRegistry;
-import org.cataclysm.global.cmd.CommandRegistry;
-import org.cataclysm.global.CataclysmDispatcher;
-import org.cataclysm.global.CataclysmTime;
+import org.cataclysm.api.registry.Registry;
+import org.cataclysm.game.mechanics.clock.CataclysmClock;
+import org.cataclysm.game.mechanics.ragnarok.Ragnarok;
 import org.reflections.Reflections;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public final class Cataclysm extends JavaPlugin {
     private static final String ASCII = """
@@ -24,52 +19,44 @@ public final class Cataclysm extends JavaPlugin {
      \\____/_/   \\_\\_/_/   \\_\\____|_____|_| |____/|_|  |_|
     """;
 
-    private static final @Getter ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
-
     private static final @Getter Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-
     private static final @Getter Reflections reflections = new Reflections("org.cataclysm");
 
     private static @Getter Cataclysm instance;
-    private static @Getter @Setter CataclysmTime timeManager;
-    private static @Getter @Setter CataclysmDispatcher dispatcher;
+    private static @Getter @Setter Ragnarok ragnarok;
+    private static @Getter @Setter CataclysmClock clock;
+
 
     @Override
     public void onEnable() {
         instance = this;
 
         try {
-            timeManager = CataclysmTime.load();
-            dispatcher = new CataclysmDispatcher();
+            clock = CataclysmClock.restoreOrDefault(new CataclysmClock());
+            ragnarok = Ragnarok.restoreOrDefault(new Ragnarok());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        CommandRegistry.handleRegistry(this);
-        EventRegistry.handleRegistry(this);
+        clock.startTickers();
 
-        super.getLogger().info("\n" + ASCII);
-        super.getLogger().info("Plugin enabled successfully. v" + getPluginMeta().getVersion());
+        Registry registry = new Registry(this, reflections);
+        registry.listeners();
+        registry.commands();
+
+        getLogger().info("\n" + ASCII);
+        getLogger().info("Plugin enabled successfully. v" + getPluginMeta().getVersion());
     }
 
     @Override
     public void onDisable() {
         try {
-            CataclysmTime.save();
+            ragnarok.save();
+            clock.save();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        service.shutdown();
-        try {
-            if (!service.awaitTermination(3, TimeUnit.SECONDS)) {
-                service.shutdownNow();
-            }
-        } catch (InterruptedException ie) {
-            service.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
-
-        super.getLogger().info("Plugin disabled successfully.");
+        getLogger().info("Plugin disabled successfully.");
     }
 }

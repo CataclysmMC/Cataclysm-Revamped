@@ -1,30 +1,16 @@
-package org.cataclysm.global.events;
+package org.cataclysm.game.mechanics.clock.events;
 
 import lombok.Getter;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.cataclysm.global.CataclysmTime;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Fired when the logical in-game day changes inside {@link CataclysmTime}.
- */
 @Getter
-public class DayChangeEvent extends Event {
+public class DayChangeEvent extends ClockEvent {
     private static final HandlerList HANDLERS = new HandlerList();
 
-    /** The day before the change. */
     private final int oldDay;
-
-    /** The new day after the change. */
     private final int newDay;
 
-    /**
-     * Creates a new DayChangeEvent.
-     *
-     * @param oldDay previous day
-     * @param newDay new day
-     */
     public DayChangeEvent(int oldDay, int newDay) {
         this.oldDay = oldDay;
         this.newDay = newDay;
